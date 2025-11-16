@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday Surprise for Bhaiya</title>
+<style>
+  /* --- Global Styles --- */
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  body, html { width: 100%; height: 100%; overflow: hidden; background: #111; color: #fff; }
+  button { cursor: pointer; outline: none; border: none; border-radius: 10px; padding: 15px 30px; font-size: 1.5em; transition: 0.3s; }
+  button:hover { transform: scale(1.1); }
+  .hidden { display: none; }
+
+  /* --- Floating Emoji Animation --- */
+  .emoji { position: absolute; font-size: 2em; animation: float 6s linear infinite; }
+  @keyframes float {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* --- Screen Styles --- */
+  .screen { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; transition: opacity 1s; }
+
+  /* Welcome Screen */
+  #welcome { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); }
+  #welcome h1 { font-size: 3em; color: #fff; text-shadow: 0 0 10px #fff, 0 0 20px #ff00ff, 0 0 30px #00ffff; margin-bottom: 40px; }
+
+  /* Surprise Waiting Screen */
+  #surprise { background: radial-gradient(circle, #1a2a6c, #b21f1f, #fdbb2d); }
+  #surprise h1 { font-size: 2.5em; margin-bottom: 40px; }
+
+  /* Birthday Wish Screen */
+  #wish { background: radial-gradient(circle at top left, #ff5f6d, #ffc371, #ff9a9e); }
+  #wish h1 { font-size: 3em; margin-bottom: 40px; color: #fff; text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #f0f; animation: glow 1.5s infinite alternate; }
+  @keyframes glow {
+    from { text-shadow: 0 0 10px #fff, 0 0 20px #ff0, 0 0 30px #f0f; }
+    to { text-shadow: 0 0 20px #ff0, 0 0 40px #f0f, 0 0 60px #0ff; }
+  }
+
+  /* Magical Cake Screen */
+  #cake { background: radial-gradient(circle, #000, #222); }
+  #cake h1 { font-size: 2.5em; margin-bottom: 30px; text-shadow: 0 0 20px #ff0, 0 0 40px #f0f; }
+
+  /* Fireworks / Hearts */
+  .particle { position: absolute; border-radius: 50%; pointer-events: none; }
+  .confetti { width: 10px; height: 10px; background: #ff0; animation: confettiFall 3s linear forwards; }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  .heart { font-size: 2em; color: red; animation: heartRise 4s linear forwards; }
+  @keyframes heartRise {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+  }
+
+  /* Photo Book */
+  #photobook { background: #111; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; }
+  #photobook img { max-width: 80%; border-radius: 20px; box-shadow: 0 0 20px #fff; margin-bottom: 20px; }
+  .page-buttons { display: flex; gap: 20px; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<!-- --- Welcome Screen --- -->
+<div id="welcome" class="screen">
+  <h1>Welcome Bhaiya! 🎉✨❤️</h1>
+  <button id="startBtn">Let's Go!</button>
+</div>
+
+<!-- --- Surprise Waiting Screen --- -->
+<div id="surprise" class="screen hidden">
+  <h1>There's a surprise waiting for you!</h1>
+  <button id="openSurpriseBtn">Open Surprise</button>
+</div>
+
+<!-- --- Birthday Wish Screen --- -->
+<div id="wish" class="screen hidden">
+  <h1>Happy Birthday Bhaiya 🎉❤️✨</h1>
+  <button id="seeSurpriseBtn">Click here to see your surprise</button>
+</div>
+
+<!-- --- Magical Cake Screen --- -->
+<div id="cake" class="screen hidden">
+  <h1>Magical Cake Time 🎂✨</h1>
+  <button id="beginMagicBtn">Begin Magic</button>
+</div>
+
+<!-- --- Photo Book Section --- -->
+<div id="photobook" class="screen hidden">
+  <h1>Calculate Our Love ❤️</h1>
+  <img id="photoBookImg" src="photo1.jpg" alt="Birthday Photo">
+  <p id="photoBookText">Hapiii Birthday to You!</p>
+  <div class="page-buttons">
+    <button id="prevPage">Previous</button>
+    <button id="nextPage">Next</button>
+  </div>
+</div>
+
+<!-- --- Audio --- -->
+<audio id="bgMusic" src="music.mp3" loop></audio>
+
+<script>
+  /* --- Global Elements --- */
+  const welcome = document.getElementById('welcome');
+  const surprise = document.getElementById('surprise');
+  const wish = document.getElementById('wish');
+  const cake = document.getElementById('cake');
+  const photobook = document.getElementById('photobook');
+  const music = document.getElementById('bgMusic');
+
+  /* --- Start Button --- */
+  document.getElementById('startBtn').addEventListener('click', () => {
+    welcome.classList.add('hidden');
+    surprise.classList.remove('hidden');
+    playMusic();
+    spawnEmojis();
+  });
+
+  /* --- Open Surprise Button --- */
+  document.getElementById('openSurpriseBtn').addEventListener('click', () => {
+    surprise.classList.add('hidden');
+    wish.classList.remove('hidden');
+    spawnConfetti();
+  });
+
+  /* --- See Surprise Button --- */
+  document.getElementById('seeSurpriseBtn').addEventListener('click', () => {
+    wish.classList.add('hidden');
+    cake.classList.remove('hidden');
+  });
+
+  /* --- Begin Magic Button --- */
+  document.getElementById('beginMagicBtn').addEventListener('click', () => {
+    spawnFireworks();
+    spawnHearts();
+    setTimeout(() => {
+      cake.classList.add('hidden');
+      photobook.classList.remove('hidden');
+    }, 4000);
+  });
+
+  /* --- Play Music --- */
+  function playMusic() {
+    const playPromise = music.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        // Mobile autoplay requires tap
+      });
+    }
+  }
+
+  /* --- Floating Emojis --- */
+  function spawnEmojis() {
+    const emojis = ['🎉','✨','❤️','🎂','🥳'];
+    for (let i=0; i<20; i++){
+      let e = document.createElement('div');
+      e.classList.add('emoji');
+      e.style.left = Math.random()*100 + 'vw';
+      e.style.animationDuration = 4 + Math.random()*4 + 's';
+      e.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+      document.body.appendChild(e);
+      setTimeout(()=>{ e.remove(); }, 8000);
+    }
+    setTimeout(spawnEmojis, 3000);
+  }
+
+  /* --- Confetti --- */
+  function spawnConfetti() {
+    for (let i=0;i<50;i++){
+      let c = document.createElement('div');
+      c.classList.add('confetti');
+      c.style.left = Math.random()*100 + 'vw';
+      c.style.background = `hsl(${Math.random()*360},100%,50%)`;
+      document.body.appendChild(c);
+      setTimeout(()=>{ c.remove(); }, 3000);
+    }
+  }
+
+  /* --- Fireworks --- */
+  function spawnFireworks() {
+    for (let i=0;i<100;i++){
+      let f = document.createElement('div');
+      f.classList.add('confetti');
+      f.style.width = f.style.height = Math.random()*8+5+'px';
+      f.style.left = Math.random()*100 + 'vw';
+      f.style.background = `hsl(${Math.random()*360},100%,50%)`;
+      document.body.appendChild(f);
+      setTimeout(()=>{ f.remove(); }, 4000);
+    }
+  }
+
+  /* --- Hearts --- */
+  function spawnHearts() {
+    for (let i=0;i<30;i++){
+      let h = document.createElement('div');
+      h.classList.add('heart');
+      h.style.left = Math.random()*100 + 'vw';
+      h.style.animationDuration = 3 + Math.random()*2 + 's';
+      h.innerText = '❤️';
+      document.body.appendChild(h);
+      setTimeout(()=>{ h.remove(); }, 5000);
+    }
+  }
+
+  /* --- Photo Book --- */
+  const photos = [
+    {img:'photo1.jpg', text:'Hapiii Birthday to You!'},
+    {img:'photo2.jpg', text:'You are the best Bhaiya!'},
+    {img:'photo3.jpg', text:'Wishing you endless happiness!'}
+  ];
+  let currentPage = 0;
+  const photoBookImg = document.getElementById('photoBookImg');
+  const photoBookText = document.getElementById('photoBookText');
+
+  document.getElem
+    entById('nextPage').addEventListener('click', ()=>{
+    if(currentPage < photos.length-1) currentPage++;
+    updatePhotoBook();
+  });
+  document.getElementById('prevPage').addEventListener('click', ()=>{
+    if(currentPage > 0) currentPage--;
+    updatePhotoBook();
+  });
+
+  function updatePhotoBook(){
+    photoBookImg.src = photos[currentPage].img;
+    photoBookText.textContent = photos[currentPage].text;
+    spawnEmojis();
+  }
+
+</script>
+</body>
+</html>
